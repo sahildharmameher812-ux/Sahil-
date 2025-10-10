@@ -1,0 +1,25 @@
+{
+  "name": "cwri-cybercrime-analytics",
+  "version": "1.0.0",
+  "description": "Cash Withdrawal Risk Intelligence - Predictive Analytics Framework for Cybercrime Complaints",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "cybercrime",
+    "analytics",
+    "predictive",
+    "sih2025"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
