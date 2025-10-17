@@ -1,8 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/authStore';
 import LayoutFinal from './components/LayoutFinal';
 import './i18n/config';
-import LoginNew from './pages/LoginNew';
 import DashboardNew from './pages/DashboardNew';
 import RiskMapFinal from './pages/RiskMapFinal';
 import Alerts from './pages/Alerts';
@@ -16,19 +14,15 @@ import Admin from './pages/Admin';
 import Audit from './pages/Audit';
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
-
-  if (!isAuthenticated) {
-    return <LoginNew />;
-  }
+  // Bypassed authentication - direct access to dashboard
 
   return (
     <LayoutFinal>
       <Routes>
         <Route path="/" element={<DashboardNew />} />
         <Route path="/risk-map" element={<RiskMapFinal />} />
-        <Route path="/alerts" element={<Alerts />} />
         <Route path="/cases" element={<Cases />} />
+        <Route path="/alerts" element={<Alerts />} />
         <Route path="/complaints" element={<Complaints />} />
         <Route path="/intelligence" element={<Intelligence />} />
         <Route path="/models" element={<Models />} />
