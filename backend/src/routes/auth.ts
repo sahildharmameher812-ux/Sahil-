@@ -56,6 +56,42 @@ router.post('/register', protect, async (req: AuthRequest, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Check if running in demo mode (no MongoDB)
+    const mongoURI = process.env.MONGODB_URI;
+    if (!mongoURI || mongoURI === 'skip') {
+      // Demo mode - accept specific credentials without database
+      if (email === 'admin@cwri.gov.in' && password === 'Admin@123') {
+        const demoUser = {
+          _id: 'demo-admin-001',
+          name: 'Demo Administrator',
+          email: 'admin@cwri.gov.in',
+          role: UserRole.I4C_ADMIN
+        };
+        
+        const token = jwt.sign(
+          { id: demoUser._id, role: demoUser.role },
+          process.env.JWT_SECRET || 'secret',
+          { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
+        );
+        
+        const refreshToken = jwt.sign(
+          { id: demoUser._id, role: demoUser.role, type: 'refresh' },
+          process.env.JWT_SECRET || 'secret',
+          { expiresIn: '30d' } as jwt.SignOptions
+        );
+        
+        return res.json({ 
+          token, 
+          refreshToken,
+          user: demoUser
+        });
+      } else {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+    }
+    
+    // Normal mode with database
     const user = await User.findOne({ email }).select('+password');
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
@@ -161,6 +197,27 @@ router.post('/verify', async (req, res) => {
     }
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    
+    // Check if running in demo mode
+    const mongoURI = process.env.MONGODB_URI;
+    if (!mongoURI || mongoURI === 'skip') {
+      // Demo mode - validate token without database
+      if (decoded.id === 'demo-admin-001') {
+        return res.json({ 
+          valid: true, 
+          user: { 
+            id: 'demo-admin-001',
+            name: 'Demo Administrator',
+            email: 'admin@cwri.gov.in',
+            role: UserRole.I4C_ADMIN
+          } 
+        });
+      } else {
+        return res.status(401).json({ valid: false, message: 'Invalid demo user' });
+      }
+    }
+    
+    // Normal mode with database
     const user = await User.findById(decoded.id).select('-password');
     
     if (!user || !user.isActive) {
