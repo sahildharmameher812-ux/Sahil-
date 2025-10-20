@@ -4,6 +4,7 @@ import Complaint from '../models/Complaint';
 import Alert from '../models/Alert';
 import Case from '../models/Case';
 import { AuthRequest } from '../middleware/auth';
+import { isDemoMode, demoDashboardData } from '../services/demoData';
 
 const router = express.Router();
 
@@ -12,6 +13,18 @@ router.use(protect);
 // Get dashboard statistics
 router.get('/stats', async (req: AuthRequest, res) => {
   try {
+    // Check if in demo mode
+    if (isDemoMode()) {
+      return res.json({
+        todayComplaints: 234,
+        activeAlerts: 47,
+        activeCases: 156,
+        predictedHotspots: 8,
+        fundBlockRequests: 3,
+        lastSyncTime: new Date()
+      });
+    }
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
