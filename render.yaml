@@ -2,7 +2,6 @@ services:
   # Backend API Service
   - type: web
     name: cwri-backend
-    plan: free  # Explicitly use free tier
     runtime: node
     repo: https://github.com/sahildharmameher812-ux/Sahil-.git
     buildCommand: cd backend && npm install && npm run build
@@ -29,10 +28,8 @@ services:
         value: 10485760
 
   # Frontend Static Site
-  - type: web
+  - type: static
     name: cwri-frontend
-    plan: free
-    runtime: static
     repo: https://github.com/sahildharmameher812-ux/Sahil-.git
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
