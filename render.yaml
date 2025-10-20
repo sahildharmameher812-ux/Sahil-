@@ -29,8 +29,10 @@ services:
         value: 10485760
 
   # Frontend Static Site
-  - type: static
+  - type: web
     name: cwri-frontend
+    plan: free
+    runtime: static
     repo: https://github.com/sahildharmameher812-ux/Sahil-.git
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
