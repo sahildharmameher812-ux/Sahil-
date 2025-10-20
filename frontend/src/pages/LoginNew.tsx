@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { Shield, Lock, User, Eye, EyeOff, ArrowRight, Globe, Phone, Mail } from 'lucide-react';
+import apiClient from '../api/client';
+import toast from 'react-hot-toast';
 
 export default function LoginNew() {
   const [username, setUsername] = useState('');
@@ -16,17 +18,53 @@ export default function LoginNew() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      login({
-        id: '1',
-        email: username,
-        name: username === 'admin' ? 'System Administrator' : 'User',
-        role: 'I4C_ADMIN',
+      // Use real API authentication
+      const response = await apiClient.post('/auth/login', { 
+        email: username.includes('@') ? username : `${username}@cwri.gov.in`,
+        password: password 
       });
-    } catch (err) {
-      setError('Invalid credentials. Please try again.');
+      
+      if (response.data.require2FA) {
+        toast.error('2FA verification required (not implemented in UI)');
+        setError('2FA verification required');
+      } else {
+        login(response.data.token, response.data.user, response.data.refreshToken);
+        toast.success('Login successful!');
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+    setIsLoading(true);
+    
+    // Auto-fill demo credentials
+    setUsername('admin@cwri.gov.in');
+    setPassword('Admin@123');
+
+    try {
+      const response = await apiClient.post('/auth/login', { 
+        email: 'admin@cwri.gov.in',
+        password: 'Admin@123'
+      });
+      
+      if (response.data.require2FA) {
+        toast.error('2FA verification required (not implemented in UI)');
+        setError('2FA verification required');
+      } else {
+        login(response.data.token, response.data.user, response.data.refreshToken);
+        toast.success('🎉 Demo login successful! Welcome to CWRI Dashboard!');
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Demo login failed. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -208,11 +246,40 @@ export default function LoginNew() {
               )}
             </button>
 
-            {/* Demo Credentials */}
-            <div className="bg-accent-50 border border-accent-200 rounded-xl p-4">
-              <p className="text-sm font-semibold text-accent-900 mb-2">Demo Credentials:</p>
-              <p className="text-xs text-accent-700"><strong>Username:</strong> admin</p>
-              <p className="text-xs text-accent-700"><strong>Password:</strong> admin123</p>
+            {/* Quick Demo Login Button */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white text-neutral-500 font-medium">or</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="relative w-full bg-gradient-to-r from-accent-500 to-accent-600 hover:from-accent-600 hover:to-accent-700 text-white px-6 py-3.5 rounded-xl font-bold text-base transition-all hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mt-4"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                <>
+                  <span>🚀</span>
+                  <span>Quick Demo Access</span>
+                </>
+              )}
+            </button>
+
+            {/* Demo Credentials Info */}
+            <div className="bg-accent-50 border border-accent-200 rounded-xl p-3 mt-4">
+              <p className="text-xs font-semibold text-accent-900 mb-1">Demo Account Info:</p>
+              <p className="text-xs text-accent-700">Click "Quick Demo Access" for instant login with admin privileges</p>
             </div>
           </form>
 

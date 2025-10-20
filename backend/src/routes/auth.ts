@@ -67,14 +67,26 @@ router.post('/login', async (req, res) => {
       return res.json({ require2FA: true, userId: user._id });
     }
 
+    // Generate both access and refresh tokens
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
     );
+    
+    const refreshToken = jwt.sign(
+      { id: user._id, role: user.role, type: 'refresh' },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '30d' } as jwt.SignOptions
+    );
+    
     user.lastLogin = new Date();
     await user.save();
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.json({ 
+      token, 
+      refreshToken,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -135,6 +147,90 @@ router.post('/2fa/confirm', protect, async (req: AuthRequest, res) => {
     await user.save();
     res.json({ message: '2FA enabled successfully' });
   } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Verify token endpoint
+router.post('/verify', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({ valid: false, message: 'No token provided' });
+    }
+
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const user = await User.findById(decoded.id).select('-password');
+    
+    if (!user || !user.isActive) {
+      return res.status(401).json({ valid: false, message: 'Invalid user or account deactivated' });
+    }
+
+    res.json({ 
+      valid: true, 
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      } 
+    });
+  } catch (err: any) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ valid: false, message: 'Token expired' });
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ valid: false, message: 'Invalid token' });
+    }
+    res.status(500).json({ valid: false, message: err.message });
+  }
+});
+
+// Refresh token endpoint
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'No refresh token provided' });
+    }
+
+    const decoded: any = jwt.verify(refreshToken, process.env.JWT_SECRET || 'secret');
+    
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+    
+    const user = await User.findById(decoded.id).select('-password');
+    
+    if (!user || !user.isActive) {
+      return res.status(401).json({ message: 'Invalid user or account deactivated' });
+    }
+
+    // Generate new access token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
+    );
+
+    res.json({ 
+      token,
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      } 
+    });
+  } catch (err: any) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Refresh token expired' });
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
     res.status(500).json({ message: err.message });
   }
 });

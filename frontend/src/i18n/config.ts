@@ -14,6 +14,7 @@ const resources = {
       "language": "Language",
       
       // Navigation
+      "home": "Home",
       "dashboard": "Dashboard",
       "riskHeatmap": "Risk Heatmap",
       "alerts": "Alerts",
@@ -174,6 +175,7 @@ const resources = {
       "language": "भाषा",
       
       // Navigation
+      "home": "होम",
       "dashboard": "डैशबोर्ड",
       "riskHeatmap": "जोखिम हीटमैप",
       "alerts": "अलर्ट",

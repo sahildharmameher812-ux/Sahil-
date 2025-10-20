@@ -1,5 +1,0 @@
-{
-  "scripts": {
-    "demo": "ts-node src/server-demo.ts"
-  }
-}
