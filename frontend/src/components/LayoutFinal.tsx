@@ -168,9 +168,9 @@ export default function LayoutFinal({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Navigation Bar */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-          <div className="max-w-[1920px] mx-auto px-6">
-            <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+        <div className="max-w-[1920px] mx-auto px-6">
+          <div className="flex items-center justify-between">
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex items-center gap-1">
                 <Link to="/" className="px-4 py-3 hover:bg-white/10 transition-colors flex items-center gap-2">
@@ -416,7 +416,7 @@ export default function LayoutFinal({ children }: { children: React.ReactNode })
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-[1920px] mx-auto px-6 py-8">
