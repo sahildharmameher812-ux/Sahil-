@@ -48,7 +48,12 @@ const corsOptions = {
     ].filter(Boolean);
     
     // Check if the origin is in the allowed list
-    if (allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
+    if (allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string' && typeof origin === 'string') {
+        return origin === allowed || origin.startsWith(allowed);
+      }
+      return false;
+    })) {
       callback(null, true);
     } else {
       callback(null, true); // Allow all origins for now to avoid issues
