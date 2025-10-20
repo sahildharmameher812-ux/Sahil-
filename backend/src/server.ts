@@ -84,7 +84,14 @@ app.use('/api/notifications', notificationRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  const mongoURI = process.env.MONGODB_URI;
+  const isDemoMode = !mongoURI || mongoURI === 'skip';
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    mode: isDemoMode ? 'DEMO (No Database)' : 'PRODUCTION',
+    mongoConfigured: !!mongoURI
+  });
 });
 
 // Error Handler

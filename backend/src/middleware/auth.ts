@@ -19,6 +19,26 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     }
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    
+    // Check if running in demo mode
+    const mongoURI = process.env.MONGODB_URI;
+    if (!mongoURI || mongoURI === 'skip') {
+      // Demo mode - create user object without database
+      if (decoded.id === 'demo-admin-001') {
+        req.user = {
+          _id: 'demo-admin-001',
+          name: 'Demo Administrator',
+          email: 'admin@cwri.gov.in',
+          role: UserRole.I4C_ADMIN,
+          isActive: true
+        };
+        return next();
+      } else {
+        return res.status(401).json({ message: 'Invalid demo user' });
+      }
+    }
+    
+    // Normal mode with database
     req.user = await User.findById(decoded.id).select('-password');
 
     if (!req.user) {
