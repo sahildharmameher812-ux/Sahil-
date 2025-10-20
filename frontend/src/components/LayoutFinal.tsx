@@ -244,7 +244,6 @@ export default function LayoutFinal({ children }: { children: React.ReactNode })
                   )}
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
