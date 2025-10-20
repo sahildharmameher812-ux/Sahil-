@@ -49,10 +49,15 @@ export default function LoginNew() {
     setPassword('Admin@123');
 
     try {
+      console.log('Attempting demo login...');
+      console.log('API URL:', apiClient.defaults.baseURL);
+      
       const response = await apiClient.post('/auth/login', { 
         email: 'admin@cwri.gov.in',
         password: 'Admin@123'
       });
+      
+      console.log('Login response:', response.data);
       
       if (response.data.require2FA) {
         toast.error('2FA verification required (not implemented in UI)');
@@ -62,7 +67,19 @@ export default function LoginNew() {
         toast.success('🎉 Demo login successful! Welcome to CWRI Dashboard!');
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Demo login failed. Please try again.';
+      console.error('Login error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error message:', err.message);
+      
+      let errorMessage = 'Demo login failed. ';
+      if (err.response) {
+        errorMessage += err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        errorMessage += 'Cannot connect to server. Please check if backend is running.';
+      } else {
+        errorMessage += err.message;
+      }
+      
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
