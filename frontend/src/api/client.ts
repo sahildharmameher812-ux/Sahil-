@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+// Use environment variable in production, proxy in development
+const API_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
