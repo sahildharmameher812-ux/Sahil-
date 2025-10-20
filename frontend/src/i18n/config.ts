@@ -160,7 +160,6 @@ const resources = {
       
       // Additional missing translations
       "systemAdministrator": "System Administrator",
-      "admin": "Admin",
       "officer": "Officer",
       "vsYesterdayLabel": "vs yesterday",
     }
@@ -207,7 +206,6 @@ const resources = {
       // Stats Cards
       "todayComplaints": "आज की शिकायतें",
       "predictedHotspots": "अनुमानित हॉटस्पॉट",
-      "activeAlerts": "सक्रिय अलर्ट",
       "recoveredToday": "आज बरामद",
       "vsYesterday": "बनाम कल",
       "aiPowered": "AI संचालित",
@@ -322,7 +320,6 @@ const resources = {
       
       // Additional missing translations
       "systemAdministrator": "सिस्टम प्रशासक",
-      "admin": "प्रशासक",
       "officer": "अधिकारी",
       "vsYesterdayLabel": "बनाम कल",
     }
