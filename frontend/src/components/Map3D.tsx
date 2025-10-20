@@ -20,7 +20,7 @@ interface Map3DProps {
 }
 
 export default function Map3D({ hotspots }: Map3DProps) {
-  const [viewState, setViewState] = useState({
+  const [viewState] = useState({
     longitude: 78.9629,
     latitude: 20.5937,
     zoom: 4.5,
@@ -35,12 +35,11 @@ export default function Map3D({ hotspots }: Map3DProps) {
     maxZoom: 19,
     tileSize: 256,
     renderSubLayers: props => {
-      const {
-        bbox: {west, south, east, north}
-      } = props.tile;
+      const bbox = (props.tile as any).bbox || (props.tile as any).boundingBox || {};
+      const {west = -180, south = -90, east = 180, north = 90} = bbox;
 
       return new BitmapLayer(props, {
-        data: null,
+        data: undefined,
         image: props.data,
         bounds: [west, south, east, north]
       });
@@ -55,12 +54,11 @@ export default function Map3D({ hotspots }: Map3DProps) {
     maxZoom: 19,
     tileSize: 256,
     renderSubLayers: props => {
-      const {
-        bbox: {west, south, east, north}
-      } = props.tile;
+      const bbox = (props.tile as any).bbox || (props.tile as any).boundingBox || {};
+      const {west = -180, south = -90, east = 180, north = 90} = bbox;
 
       return new BitmapLayer(props, {
-        data: null,
+        data: undefined,
         image: props.data,
         bounds: [west, south, east, north]
       });
